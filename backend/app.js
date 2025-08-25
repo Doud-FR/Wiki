@@ -73,24 +73,39 @@ app.use((req, res) => {
 
 // Database connection and server start
 const startServer = async () => {
-  try {
-    // Test database connection
-    await sequelize.authenticate();
-    console.log('Database connection established successfully.');
+  let retries = 10;
+  let lastError;
+  
+  while (retries > 0) {
+    try {
+      // Test database connection
+      await sequelize.authenticate();
+      console.log('Database connection established successfully.');
 
-    // Sync database (create tables if they don't exist)
-    await sequelize.sync({ force: false });
-    console.log('Database synchronized successfully.');
+      // Sync database (create tables if they don't exist)
+      await sequelize.sync({ force: false });
+      console.log('Database synchronized successfully.');
 
-    // Start server
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    });
-  } catch (error) {
-    console.error('Unable to start server:', error);
-    process.exit(1);
+      // Start server
+      app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server is running on port ${PORT}`);
+        console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      });
+      
+      return; // Success, exit the loop
+    } catch (error) {
+      lastError = error;
+      retries--;
+      console.log(`Unable to connect to database. Retrying in 5 seconds... (${retries} retries left)`);
+      
+      if (retries > 0) {
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
+    }
   }
+  
+  console.error('Unable to start server after all retries:', lastError);
+  process.exit(1);
 };
 
 startServer();

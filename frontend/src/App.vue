@@ -1,11 +1,11 @@
 <template>
   <v-app>
     <AppNavigation v-if="showNavigation" />
-    
+
     <v-main>
       <router-view />
     </v-main>
-    
+
     <AppFooter v-if="showNavigation" />
   </v-app>
 </template>
@@ -23,7 +23,7 @@ export default {
     AppNavigation,
     AppFooter
   },
-  setup() {
+  setup () {
     const route = useRoute()
     const authStore = useAuthStore()
 

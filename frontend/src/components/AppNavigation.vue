@@ -1,7 +1,7 @@
 <template>
   <v-app-bar color="primary" dark prominent>
     <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-    
+
     <v-toolbar-title class="d-flex align-center">
       <v-icon class="mr-2">mdi-book-open-page-variant</v-icon>
       Wiki App
@@ -32,25 +32,25 @@
           </v-avatar>
         </v-btn>
       </template>
-      
+
       <v-list>
         <v-list-item prepend-icon="mdi-account">
           <v-list-item-title>{{ authStore.fullName }}</v-list-item-title>
           <v-list-item-subtitle>{{ authStore.user?.email }}</v-list-item-subtitle>
         </v-list-item>
-        
+
         <v-divider></v-divider>
-        
+
         <v-list-item @click="$router.push('/profile')" prepend-icon="mdi-account-edit">
           <v-list-item-title>Profil</v-list-item-title>
         </v-list-item>
-        
+
         <v-list-item v-if="authStore.isAdmin" @click="$router.push('/admin')" prepend-icon="mdi-cog">
           <v-list-item-title>Administration</v-list-item-title>
         </v-list-item>
-        
+
         <v-divider></v-divider>
-        
+
         <v-list-item @click="logout" prepend-icon="mdi-logout">
           <v-list-item-title>Déconnexion</v-list-item-title>
         </v-list-item>
@@ -62,9 +62,9 @@
       <v-list density="compact" nav>
         <v-list-item prepend-icon="mdi-home" title="Accueil" value="home" @click="$router.push('/')"></v-list-item>
         <v-list-item prepend-icon="mdi-file-document-multiple" title="Documents" value="documents" @click="$router.push('/documents')"></v-list-item>
-        
+
         <v-divider class="my-2"></v-divider>
-        
+
         <v-list-subheader>DOSSIERS</v-list-subheader>
         <!-- Folder tree will be loaded here -->
         <v-list-item
@@ -74,9 +74,9 @@
           :title="folder.name"
           @click="navigateToFolder(folder)"
         ></v-list-item>
-        
+
         <v-divider class="my-2"></v-divider>
-        
+
         <v-list-item prepend-icon="mdi-plus" title="Nouveau document" @click="createNewDocument"></v-list-item>
         <v-list-item prepend-icon="mdi-folder-plus" title="Nouveau dossier" @click="createNewFolder"></v-list-item>
       </v-list>
@@ -92,11 +92,11 @@ import { useToast } from 'vue-toastification'
 
 export default {
   name: 'AppNavigation',
-  setup() {
+  setup () {
     const router = useRouter()
     const authStore = useAuthStore()
     const toast = useToast()
-    
+
     const drawer = ref(false)
     const searchQuery = ref('')
     const recentFolders = ref([

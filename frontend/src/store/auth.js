@@ -18,7 +18,7 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    async login(email, password) {
+    async login (email, password) {
       this.loading = true
       try {
         const data = await authService.login(email, password)
@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async register(userData) {
+    async register (userData) {
       this.loading = true
       try {
         const data = await authService.register(userData)
@@ -50,35 +50,25 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async updateProfile(userData) {
-      try {
-        const data = await authService.updateProfile(userData)
-        this.user = data.user
-        return data
-      } catch (error) {
-        throw error
-      }
+    async updateProfile (userData) {
+      return await authService.updateProfile(userData)
     },
 
-    async changePassword(currentPassword, newPassword) {
-      try {
-        return await authService.changePassword(currentPassword, newPassword)
-      } catch (error) {
-        throw error
-      }
+    async changePassword (currentPassword, newPassword) {
+      return await authService.changePassword(currentPassword, newPassword)
     },
 
-    logout() {
+    logout () {
       authService.logout()
       this.user = null
       this.token = null
       this.isAuthenticated = false
     },
 
-    initializeAuth() {
+    initializeAuth () {
       const token = localStorage.getItem('auth_token')
       const user = localStorage.getItem('user')
-      
+
       if (token && user) {
         this.token = token
         this.user = JSON.parse(user)
@@ -86,9 +76,9 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async refreshProfile() {
+    async refreshProfile () {
       if (!this.isAuthenticated) return
-      
+
       try {
         this.user = await authService.getProfile()
         localStorage.setItem('user', JSON.stringify(this.user))

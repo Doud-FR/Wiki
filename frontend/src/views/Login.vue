@@ -87,7 +87,7 @@ import { useToast } from 'vue-toastification'
 
 export default {
   name: 'Login',
-  setup() {
+  setup () {
     const router = useRouter()
     const authStore = useAuthStore()
     const toast = useToast()
@@ -126,7 +126,7 @@ export default {
         router.push('/')
       } catch (error) {
         console.error('Login error:', error)
-        
+
         if (error.response?.data?.errors) {
           error.response.data.errors.forEach(err => {
             if (err.path === 'email') {

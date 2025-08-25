@@ -85,9 +85,9 @@
               >
                 <template v-slot:label>
                   <div>
-                    J'accepte les 
+                    J'accepte les
                     <v-btn text size="small" color="primary">conditions d'utilisation</v-btn>
-                    et la 
+                    et la
                     <v-btn text size="small" color="primary">politique de confidentialité</v-btn>
                   </div>
                 </template>
@@ -126,7 +126,7 @@ import { useToast } from 'vue-toastification'
 
 export default {
   name: 'Register',
-  setup() {
+  setup () {
     const router = useRouter()
     const authStore = useAuthStore()
     const toast = useToast()
@@ -205,7 +205,7 @@ export default {
         router.push('/')
       } catch (error) {
         console.error('Registration error:', error)
-        
+
         if (error.response?.data?.errors) {
           error.response.data.errors.forEach(err => {
             switch (err.path) {

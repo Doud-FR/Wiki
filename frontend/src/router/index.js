@@ -64,7 +64,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  
+
   // Initialize auth state if not already done
   if (!authStore.isAuthenticated && localStorage.getItem('auth_token')) {
     authStore.initializeAuth()

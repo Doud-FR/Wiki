@@ -16,28 +16,28 @@
               <v-col cols="12" md="6">
                 <div class="d-flex flex-column h-100">
                   <h2 class="text-h5 mb-4">Fonctionnalités principales</h2>
-                  
+
                   <v-list class="bg-transparent">
                     <v-list-item prepend-icon="mdi-folder-tree" class="px-0">
                       <v-list-item-title>Organisation hiérarchique</v-list-item-title>
                       <v-list-item-subtitle>Structurez vos documents avec des dossiers</v-list-item-subtitle>
                     </v-list-item>
-                    
+
                     <v-list-item prepend-icon="mdi-account-group" class="px-0">
                       <v-list-item-title>Gestion des utilisateurs</v-list-item-title>
                       <v-list-item-subtitle>Contrôlez l'accès avec des groupes et permissions</v-list-item-subtitle>
                     </v-list-item>
-                    
+
                     <v-list-item prepend-icon="mdi-markdown" class="px-0">
                       <v-list-item-title>Édition Markdown</v-list-item-title>
                       <v-list-item-subtitle>Créez du contenu riche facilement</v-list-item-subtitle>
                     </v-list-item>
-                    
+
                     <v-list-item prepend-icon="mdi-magnify" class="px-0">
                       <v-list-item-title>Recherche avancée</v-list-item-title>
                       <v-list-item-subtitle>Trouvez rapidement vos documents</v-list-item-subtitle>
                     </v-list-item>
-                    
+
                     <v-list-item prepend-icon="mdi-email" class="px-0">
                       <v-list-item-title>Notifications email</v-list-item-title>
                       <v-list-item-subtitle>Restez informé des nouveautés</v-list-item-subtitle>
@@ -49,9 +49,9 @@
               <v-col cols="12" md="6">
                 <div class="d-flex flex-column align-center justify-center h-100">
                   <v-icon size="120" color="primary" class="mb-6">mdi-rocket-launch</v-icon>
-                  
+
                   <h3 class="text-h5 mb-4 text-center">Commencez dès maintenant</h3>
-                  
+
                   <p class="text-center text-grey mb-6">
                     Rejoignez une plateforme moderne et intuitive pour gérer votre documentation d'équipe.
                   </p>
@@ -66,7 +66,7 @@
                     >
                       Se connecter
                     </v-btn>
-                    
+
                     <v-btn
                       variant="outlined"
                       color="primary"

@@ -13,7 +13,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  // Disable HSTS for local network environments to avoid forcing HTTPS
+  hsts: false,
+  // Configure CSP to not upgrade insecure requests for local development
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      "upgrade-insecure-requests": null
+    }
+  }
+}));
 
 // CORS configuration
 const corsOptions = {

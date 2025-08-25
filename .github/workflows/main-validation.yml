@@ -1,0 +1,54 @@
+name: Validation des pushes vers main
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v4
+      
+    - name: Configuration Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Vérification des fichiers
+      run: |
+        echo "✅ Push vers main autorisé et validé"
+        echo "📂 Contenu du repository:"
+        ls -la
+        echo ""
+        echo "📋 Structure des fichiers:"
+        find . -type f -name "*.md" -o -name "*.json" -o -name "*.js" | head -20
+        
+    - name: Validation de la structure
+      run: |
+        echo "🔍 Validation de la structure du projet..."
+        
+        # Vérifier que les fichiers essentiels existent
+        if [ -f "README.md" ]; then
+          echo "✅ README.md présent"
+        else
+          echo "❌ README.md manquant"
+          exit 1
+        fi
+        
+        if [ -f "CONTRIBUTING.md" ]; then
+          echo "✅ CONTRIBUTING.md présent"
+        else
+          echo "❌ CONTRIBUTING.md manquant"
+          exit 1
+        fi
+        
+    - name: Message de succès
+      run: |
+        echo "🎉 Push vers main réussi !"
+        echo "✨ Le repository est prêt pour les contributions"
+        echo "🚀 Tu peux push dans le main !"

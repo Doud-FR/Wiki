@@ -63,8 +63,8 @@ docker-compose up -d
 ```
 
 L'application sera accessible sur :
-- Frontend : http://localhost:8080
-- Backend API : http://localhost:3000
+- **Production** : http://localhost:3000 (application complète)
+- **Développement** : http://localhost:8080 (frontend) + http://localhost:3000 (API)
 
 ### Installation manuelle
 
@@ -130,8 +130,9 @@ SMTP_FROM=noreply@yourwiki.com
 ## 🎯 Utilisation
 
 ### Premier démarrage
-1. Accéder à http://localhost:8080
-2. Créer un compte administrateur
+1. **En développement**: Accéder à http://localhost:8080 (frontend) et http://localhost:3000 (API)
+2. **En production**: Accéder à http://localhost:3000 (application complète)
+3. Créer un compte administrateur
 3. Configurer les groupes d'utilisateurs
 4. Créer la structure de dossiers
 5. Inviter des utilisateurs
@@ -204,8 +205,16 @@ cd frontend && npm test
 ### Avec Docker
 ```bash
 # Build et déploiement
-docker-compose -f docker-compose.prod.yml up -d
+docker-compose up -d --build
+
+# Vérifier le statut
+docker-compose ps
+
+# Voir les logs
+docker-compose logs -f
 ```
+
+L'application sera accessible sur http://localhost:3000
 
 ### Manuel
 ```bash

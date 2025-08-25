@@ -2,19 +2,21 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files
+# Install dependencies separately to optimize Docker caching
 COPY package*.json ./
-COPY backend/package*.json ./backend/
-COPY frontend/package*.json ./frontend/
+RUN npm install
 
-# Install dependencies
-RUN npm run install:all
+COPY backend/package*.json ./backend/
+RUN cd backend && npm install
+
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && npm install
 
 # Copy source code
 COPY . .
 
 # Build frontend
-RUN npm run build
+RUN cd frontend && npm run build
 
 # Expose ports
 EXPOSE 3000

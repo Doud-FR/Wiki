@@ -225,6 +225,59 @@ npm run build
 NODE_ENV=production npm start
 ```
 
+## 🔧 Dépannage
+
+### Problème d'accès en production (erreur de connexion)
+
+Si vous ne pouvez pas accéder à l'application sur votre IP réseau (ex: http://192.168.10.20:3000), vérifiez :
+
+1. **Variables d'environnement** - Créez un fichier `.env` à la racine du projet :
+```bash
+# Server Configuration
+NODE_ENV=production
+PORT=3000
+FRONTEND_URL=http://YOUR_IP:3000
+
+# JWT Secret
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+
+# Database Configuration (using Docker Compose defaults)
+DB_HOST=postgres
+DB_PORT=5432
+DB_NAME=wiki_db
+DB_USER=wiki_user
+DB_PASSWORD=wiki_password
+```
+
+2. **Build du frontend** - Assurez-vous que le frontend est compilé :
+```bash
+npm run build
+```
+
+3. **Docker Compose** - Redémarrez les services :
+```bash
+docker-compose down
+docker-compose up -d --build
+```
+
+4. **Vérification des logs** :
+```bash
+docker-compose logs -f app
+```
+
+### Variables d'environnement importantes
+
+- `NODE_ENV=production` (et non `MODE_ENV`) pour activer le mode production
+- `FRONTEND_URL` doit correspondre à l'IP d'accès si différente de localhost
+- Les services Docker doivent être "healthy" avant le démarrage de l'app
+
+### Ports et réseau
+
+- Port 3000 : Application web (production)
+- Port 8080 : Frontend (développement uniquement)
+- Port 5432 : PostgreSQL
+- L'application écoute sur `0.0.0.0:3000` en production pour accepter les connexions externes
+
 ## 📋 Roadmap
 
 - [x] Authentification et gestion des utilisateurs

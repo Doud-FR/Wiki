@@ -231,6 +231,8 @@ NODE_ENV=production npm start
 
 Si vous ne pouvez pas accéder à l'application sur votre IP réseau (ex: http://192.168.10.20:3000), vérifiez :
 
+> **Note importante** : L'application est configurée pour fonctionner en HTTP sur les réseaux locaux. Les en-têtes de sécurité (HSTS) qui forcent HTTPS ont été désactivés pour permettre l'accès via HTTP sur les adresses IP locales.
+
 1. **Variables d'environnement** - Créez un fichier `.env` à la racine du projet :
 ```bash
 # Server Configuration
@@ -277,6 +279,13 @@ docker-compose logs -f app
 - Port 8080 : Frontend (développement uniquement)
 - Port 5432 : PostgreSQL
 - L'application écoute sur `0.0.0.0:3000` en production pour accepter les connexions externes
+
+### Sécurité et HTTPS
+
+L'application est configurée pour fonctionner en HTTP sur les réseaux locaux :
+- **HSTS désactivé** : Pas de redirection forcée vers HTTPS
+- **Autres sécurités maintenues** : XSS protection, content type options, frame options
+- Pour un déploiement public, considérez l'ajout d'un reverse proxy (nginx) avec SSL
 
 ## 📋 Roadmap
 

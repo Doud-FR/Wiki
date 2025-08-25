@@ -1,0 +1,20 @@
+{
+  "name": "wiki-app",
+  "version": "1.0.0",
+  "description": "Wiki.js-inspired application with advanced user management and document organization",
+  "main": "backend/app.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "keywords": ["wiki", "documentation", "markdown", "user-management"],
+  "author": "Wiki App",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

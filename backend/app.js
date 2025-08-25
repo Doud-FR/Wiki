@@ -14,10 +14,46 @@ const PORT = process.env.PORT || 3000;
 
 // Security middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:8080',
+
+// CORS configuration
+const corsOptions = {
   credentials: true
-}));
+};
+
+if (process.env.NODE_ENV === 'production') {
+  // In production, allow same-origin requests and any configured origins
+  corsOptions.origin = function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow same-origin requests
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,
+      `http://localhost:${process.env.PORT || 3000}`,
+      `http://127.0.0.1:${process.env.PORT || 3000}`
+    ].filter(Boolean);
+    
+    // Add the current server's origin
+    const serverOrigin = origin.replace(/:\d+$/, `:${process.env.PORT || 3000}`);
+    allowedOrigins.push(serverOrigin);
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // For production, be more permissive with local network IPs
+    if (origin.match(/^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+):/)) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
+  };
+} else {
+  // In development, use the configured frontend URL
+  corsOptions.origin = process.env.FRONTEND_URL || 'http://localhost:8080';
+}
+
+app.use(cors(corsOptions));
 
 // Rate limiting
 const limiter = rateLimit({

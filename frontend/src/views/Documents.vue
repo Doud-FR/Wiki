@@ -192,6 +192,16 @@
               :items="documentTypes"
               label="Type de document"
               variant="outlined"
+              class="mb-3"
+            ></v-select>
+            <v-select
+              v-model="newDocument.groups"
+              :items="availableGroups"
+              label="Assigner aux groupes (optionnel)"
+              variant="outlined"
+              multiple
+              chips
+              closable-chips
             ></v-select>
           </v-form>
         </v-card-text>
@@ -231,6 +241,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
+import { documentsAPI, foldersAPI, groupsAPI } from '@/services/api'
 
 export default {
   name: 'Documents',
@@ -252,39 +263,45 @@ export default {
     const newDocument = reactive({
       name: '',
       description: '',
-      type: 'markdown'
+      type: 'markdown',
+      groups: []
     })
 
-    // Mock data - in real app this would come from API
-    const documents = ref([
-      {
-        id: 1,
-        name: 'Guide de démarrage',
-        description: 'Guide pour commencer avec Wiki App',
-        type: 'document',
-        folderId: null,
-        updatedAt: '2024-01-15T10:30:00Z',
-        createdBy: 'Admin'
-      },
-      {
-        id: 2,
-        name: 'Documentation',
-        description: 'Dossier contenant la documentation technique',
-        type: 'folder',
-        folderId: null,
-        updatedAt: '2024-01-14T15:20:00Z',
-        createdBy: 'Admin'
-      },
-      {
-        id: 3,
-        name: 'Procédures',
-        description: 'Procédures internes de l\'équipe',
-        type: 'document',
-        folderId: 2,
-        updatedAt: '2024-01-13T09:15:00Z',
-        createdBy: 'Admin'
+    // Load available groups for assignment
+    const availableGroups = ref([])
+    const loadGroups = async () => {
+      try {
+        const response = await groupsAPI.getAll()
+        availableGroups.value = response.data?.map(group => ({
+          title: group.name,
+          value: group.id
+        })) || []
+      } catch (error) {
+        console.error('Error loading groups:', error)
       }
-    ])
+    }
+
+    // Documents data
+    const documents = ref([])
+
+    // Load documents from API
+    const loadDocuments = async () => {
+      try {
+        loading.value = true
+        const params = {}
+        if (currentFolderId.value !== null) {
+          params.folderId = currentFolderId.value
+        }
+
+        const response = await documentsAPI.getAll(params)
+        documents.value = response.data || []
+      } catch (error) {
+        console.error('Error loading documents:', error)
+        toast.error('Erreur lors du chargement des documents')
+      } finally {
+        loading.value = false
+      }
+    }
 
     const headers = [
       { title: 'Nom', key: 'name', sortable: true },
@@ -364,8 +381,9 @@ export default {
       })
     }
 
-    const navigateToFolder = (folderId) => {
+    const navigateToFolder = async (folderId) => {
       currentFolderId.value = folderId
+      await loadDocuments()
 
       if (folderId === null) {
         currentPath.value = []
@@ -401,12 +419,21 @@ export default {
       }
     }
 
-    const deleteItem = (item) => {
+    const deleteItem = async (item) => {
       if (confirm(`Êtes-vous sûr de vouloir supprimer "${item.name}" ?`)) {
-        const index = documents.value.findIndex(d => d.id === item.id)
-        if (index > -1) {
-          documents.value.splice(index, 1)
+        try {
+          if (item.type === 'document') {
+            await documentsAPI.delete(item.id)
+          } else {
+            await foldersAPI.delete(item.id)
+          }
+
+          // Reload documents after deletion
+          await loadDocuments()
           toast.success(`${item.type === 'folder' ? 'Dossier' : 'Document'} supprimé avec succès`)
+        } catch (error) {
+          console.error('Error deleting item:', error)
+          toast.error('Erreur lors de la suppression')
         }
       }
     }
@@ -415,46 +442,64 @@ export default {
       const { valid } = await createForm.value.validate()
       if (!valid) return
 
-      const newDoc = {
-        id: Date.now(),
-        name: newDocument.name,
-        description: newDocument.description,
-        type: 'document',
-        folderId: currentFolderId.value,
-        updatedAt: new Date().toISOString(),
-        createdBy: 'Utilisateur actuel'
-      }
-
-      documents.value.push(newDoc)
-      toast.success('Document créé avec succès')
-
-      // Reset form
-      newDocument.name = ''
-      newDocument.description = ''
-      newDocument.type = 'markdown'
-      showCreateDialog.value = false
-
-      // Navigate to edit the document
-      router.push(`/document/${newDoc.id}/edit`)
-    }
-
-    const createFolder = () => {
-      if (newFolderName.value.trim()) {
-        const newFolder = {
-          id: Date.now(),
-          name: newFolderName.value,
-          description: '',
-          type: 'folder',
-          folderId: currentFolderId.value,
-          updatedAt: new Date().toISOString(),
-          createdBy: 'Utilisateur actuel'
+      try {
+        loading.value = true
+        const documentData = {
+          name: newDocument.name,
+          description: newDocument.description,
+          type: newDocument.type,
+          folderId: currentFolderId.value
         }
 
-        documents.value.push(newFolder)
-        toast.success('Dossier créé avec succès')
+        const response = await documentsAPI.create(documentData)
+        const newDoc = response.data
 
-        newFolderName.value = ''
-        showCreateFolderDialog.value = false
+        toast.success('Document créé avec succès')
+
+        // Reset form
+        newDocument.name = ''
+        newDocument.description = ''
+        newDocument.type = 'markdown'
+        newDocument.groups = []
+        showCreateDialog.value = false
+
+        // Reload documents to show the new one
+        await loadDocuments()
+
+        // Navigate to edit the document
+        router.push(`/document/${newDoc.id}/edit`)
+      } catch (error) {
+        console.error('Error creating document:', error)
+        toast.error('Erreur lors de la création du document')
+      } finally {
+        loading.value = false
+      }
+    }
+
+    const createFolder = async () => {
+      if (newFolderName.value.trim()) {
+        try {
+          loading.value = true
+          const folderData = {
+            name: newFolderName.value,
+            description: '',
+            parentId: currentFolderId.value
+          }
+
+          await foldersAPI.create(folderData)
+          toast.success('Dossier créé avec succès')
+
+          newFolderName.value = ''
+          showCreateFolderDialog.value = false
+
+          // Reload documents to show the new folder
+          await loadDocuments()
+        } catch (error) {
+          console.error('Error creating folder:', error)
+          toast.error('Erreur lors de la création du dossier')
+        } finally {
+          loading.value = false
+        }
       }
     }
 
@@ -466,10 +511,13 @@ export default {
       // Sorting is reactive through computed property
     }
 
-    onMounted(() => {
+    onMounted(async () => {
+      // Load initial data
+      await Promise.all([loadDocuments(), loadGroups()])
+
       // Check if we need to navigate to a specific folder from route params
       if (route.query.folder) {
-        navigateToFolder(parseInt(route.query.folder))
+        await navigateToFolder(parseInt(route.query.folder))
       }
     })
 
@@ -499,7 +547,10 @@ export default {
       createDocument,
       createFolder,
       searchDocuments,
-      sortDocuments
+      sortDocuments,
+      loadDocuments,
+      availableGroups,
+      loadGroups
     }
   }
 }

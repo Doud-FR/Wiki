@@ -66,7 +66,7 @@
                   ></v-checkbox>
                 </v-col>
                 <v-col cols="6" class="text-right">
-                  <v-btn text size="small" color="primary">
+                  <v-btn text size="small" color="primary" @click="$router.push('/forgot-password')">
                     Mot de passe oublié ?
                   </v-btn>
                 </v-col>

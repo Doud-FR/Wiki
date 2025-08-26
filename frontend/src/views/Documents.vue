@@ -114,7 +114,11 @@
               <v-icon class="mr-3" :color="item.type === 'folder' ? 'amber' : 'primary'">
                 {{ item.type === 'folder' ? 'mdi-folder' : 'mdi-file-document' }}
               </v-icon>
-              <div>
+              <div
+                :class="item.type === 'folder' ? 'cursor-pointer hover-underline' : ''"
+                @click="item.type === 'folder' ? openFolder(item) : openDocument(item)"
+                style="flex-grow: 1;"
+              >
                 <div class="font-weight-medium">{{ item.name }}</div>
                 <div v-if="item.description" class="text-caption text-grey">{{ item.description }}</div>
               </div>
@@ -555,3 +559,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover-underline:hover .font-weight-medium {
+  text-decoration: underline;
+}
+</style>

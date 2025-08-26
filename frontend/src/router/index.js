@@ -14,6 +14,18 @@ const routes = [
     meta: { guest: true }
   },
   {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: () => import('@/views/ForgotPassword.vue'),
+    meta: { guest: true }
+  },
+  {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: () => import('@/views/ResetPassword.vue'),
+    meta: { guest: true }
+  },
+  {
     path: '/admin/register',
     name: 'AdminRegister',
     component: () => import('@/views/Register.vue'),

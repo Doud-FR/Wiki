@@ -56,6 +56,24 @@ const routes = [
     meta: { requiresAuth: true, requiresAdmin: true }
   },
   {
+    path: '/explorer',
+    name: 'Explorer',
+    component: () => import('@/views/Explorer.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/search',
+    name: 'Search',
+    component: () => import('@/views/Search.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/permissions',
+    name: 'Permissions',
+    component: () => import('@/views/Admin.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue')

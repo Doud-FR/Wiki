@@ -197,7 +197,16 @@ export default {
     }
 
     const goBack = () => {
-      router.go(-1)
+      // If document has a folder, navigate to that folder
+      if (document.value.folderId) {
+        router.push({
+          name: 'Documents',
+          query: { folder: document.value.folderId }
+        })
+      } else {
+        // If document is in root, go to documents root
+        router.push({ name: 'Documents' })
+      }
     }
 
     const editDocument = () => {
@@ -247,6 +256,7 @@ export default {
           content: doc.content || '',
           author: doc.creator ? `${doc.creator.firstName} ${doc.creator.lastName}` : 'Utilisateur inconnu',
           updatedAt: doc.updatedAt,
+          folderId: doc.folderId,
           tags: doc.tags || []
         }
       } catch (error) {

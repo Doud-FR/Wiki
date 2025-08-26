@@ -291,23 +291,28 @@ export default {
     ]
 
     const filteredItems = computed(() => {
-      let items = documents.value.filter(doc => doc.folderId === currentFolderId.value)
+      if (!documents.value || !Array.isArray(documents.value)) {
+        return []
+      }
+
+      let items = documents.value.filter(doc => doc && doc.folderId === currentFolderId.value)
 
       if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
         items = items.filter(item =>
-          item.name.toLowerCase().includes(query) ||
-          (item.description && item.description.toLowerCase().includes(query))
+          (item && item.name && item.name.toLowerCase().includes(query)) ||
+          (item && item.description && item.description.toLowerCase().includes(query))
         )
       }
 
       return items.sort((a, b) => {
+        if (!a || !b) return 0
         if (sortBy.value === 'name') {
-          return a.name.localeCompare(b.name)
+          return (a.name || '').localeCompare(b.name || '')
         } else if (sortBy.value === 'type') {
-          return a.type.localeCompare(b.type)
+          return (a.type || '').localeCompare(b.type || '')
         } else {
-          return new Date(b.updatedAt) - new Date(a.updatedAt)
+          return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0)
         }
       })
     })
@@ -315,13 +320,17 @@ export default {
     const breadcrumbItems = computed(() => {
       const items = [{ title: 'Accueil', folderId: null, disabled: false }]
 
-      currentPath.value.forEach((folder, index) => {
-        items.push({
-          title: folder.name,
-          folderId: folder.id,
-          disabled: index === currentPath.value.length - 1
+      if (currentPath.value && Array.isArray(currentPath.value)) {
+        currentPath.value.forEach((folder, index) => {
+          if (folder && folder.name) {
+            items.push({
+              title: folder.name,
+              folderId: folder.id,
+              disabled: index === currentPath.value.length - 1
+            })
+          }
         })
-      })
+      }
 
       return items
     })

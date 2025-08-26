@@ -5,8 +5,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/views/Home.vue'),
-    meta: { requiresAuth: true }
+    component: () => import('@/views/Home.vue')
   },
   {
     path: '/login',
@@ -53,6 +52,24 @@ const routes = [
   {
     path: '/admin',
     name: 'Admin',
+    component: () => import('@/views/Admin.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/explorer',
+    name: 'Explorer',
+    component: () => import('@/views/Explorer.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/search',
+    name: 'Search',
+    component: () => import('@/views/Search.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/permissions',
+    name: 'Permissions',
     component: () => import('@/views/Admin.vue'),
     meta: { requiresAuth: true, requiresAdmin: true }
   },

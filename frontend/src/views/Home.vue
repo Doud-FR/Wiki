@@ -1,5 +1,6 @@
 <template>
-  <v-container fluid class="fill-height">
+  <!-- Public welcome page for non-authenticated users -->
+  <v-container v-if="!authStore.isAuthenticated" fluid class="fill-height">
     <v-row justify="center" align="center" class="fill-height">
       <v-col cols="12" md="8" lg="6">
         <v-card class="elevation-4" rounded="lg">

@@ -82,7 +82,18 @@
 
           <v-list-item prepend-icon="mdi-account-group" title="Utilisateurs" @click="navigateToPage('/admin')"></v-list-item>
           <v-list-item prepend-icon="mdi-account-multiple" title="Groupes" @click="navigateToPage('/admin?tab=groups')"></v-list-item>
+          <v-list-item prepend-icon="mdi-folder-multiple" title="Structure" @click="navigateToPage('/admin?tab=folders')"></v-list-item>
           <v-list-item prepend-icon="mdi-account-plus" title="Créer un utilisateur" @click="navigateToPage('/admin/register')"></v-list-item>
+        </template>
+
+        <!-- File & Folder Management -->
+        <v-divider class="my-2"></v-divider>
+        <v-list-subheader>GESTION</v-list-subheader>
+
+        <v-list-item prepend-icon="mdi-folder-open" title="Explorateur de fichiers" @click="navigateToPage('/explorer')"></v-list-item>
+        <v-list-item prepend-icon="mdi-file-search" title="Recherche avancée" @click="navigateToPage('/search')"></v-list-item>
+        <template v-if="authStore.isAdmin">
+          <v-list-item prepend-icon="mdi-shield-key" title="Permissions" @click="navigateToPage('/permissions')"></v-list-item>
         </template>
 
         <!-- Folders -->

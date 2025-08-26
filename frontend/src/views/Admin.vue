@@ -270,6 +270,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
+import { groupsAPI, usersAPI } from '@/services/api'
 
 export default {
   name: 'Admin',
@@ -299,56 +300,37 @@ export default {
       isActive: true
     })
 
-    // Mock data - in real app this would come from API
-    const users = ref([
-      {
-        id: 1,
-        firstName: 'Admin',
-        lastName: 'User',
-        email: 'admin@example.com',
-        isAdmin: true,
-        isActive: true,
-        lastLoginAt: '2024-01-15T10:30:00Z',
-        createdAt: '2024-01-01T00:00:00Z'
-      },
-      {
-        id: 2,
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john@example.com',
-        isAdmin: false,
-        isActive: true,
-        lastLoginAt: '2024-01-14T15:20:00Z',
-        createdAt: '2024-01-05T09:00:00Z'
-      },
-      {
-        id: 3,
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane@example.com',
-        isAdmin: false,
-        isActive: false,
-        lastLoginAt: null,
-        createdAt: '2024-01-10T14:30:00Z'
-      }
-    ])
+    // Data from API
+    const users = ref([])
+    const groups = ref([])
 
-    const groups = ref([
-      {
-        id: 1,
-        name: 'Développeurs',
-        description: 'Équipe de développement',
-        memberCount: 2,
-        createdAt: '2024-01-01T00:00:00Z'
-      },
-      {
-        id: 2,
-        name: 'Rédacteurs',
-        description: 'Équipe de rédaction de contenu',
-        memberCount: 1,
-        createdAt: '2024-01-05T00:00:00Z'
+    // Load users from API
+    const loadUsers = async () => {
+      try {
+        usersLoading.value = true
+        const response = await usersAPI.getAll()
+        users.value = response.data || []
+      } catch (error) {
+        console.error('Error loading users:', error)
+        toast.error('Erreur lors du chargement des utilisateurs')
+      } finally {
+        usersLoading.value = false
       }
-    ])
+    }
+
+    // Load groups from API
+    const loadGroups = async () => {
+      try {
+        groupsLoading.value = true
+        const response = await groupsAPI.getAll()
+        groups.value = response.data || []
+      } catch (error) {
+        console.error('Error loading groups:', error)
+        toast.error('Erreur lors du chargement des groupes')
+      } finally {
+        groupsLoading.value = false
+      }
+    }
 
     const folderStructure = ref([
       {
@@ -431,12 +413,16 @@ export default {
       toast.success(`Utilisateur ${user.isActive ? 'activé' : 'désactivé'} avec succès`)
     }
 
-    const deleteUser = (user) => {
+    const deleteUser = async (user) => {
       if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.firstName} ${user.lastName} ?`)) {
-        const index = users.value.findIndex(u => u.id === user.id)
-        if (index > -1) {
-          users.value.splice(index, 1)
+        try {
+          await usersAPI.delete(user.id)
           toast.success('Utilisateur supprimé avec succès')
+          // Reload users after deletion
+          await loadUsers()
+        } catch (error) {
+          console.error('Error deleting user:', error)
+          toast.error('Erreur lors de la suppression de l\'utilisateur')
         }
       }
     }
@@ -445,20 +431,28 @@ export default {
       const { valid } = await groupForm.value.validate()
       if (!valid) return
 
-      const newGroupObj = {
-        id: Date.now(),
-        name: newGroup.name,
-        description: newGroup.description,
-        memberCount: 0,
-        createdAt: new Date().toISOString()
+      try {
+        groupsLoading.value = true
+        const groupData = {
+          name: newGroup.name,
+          description: newGroup.description
+        }
+
+        await groupsAPI.create(groupData)
+        toast.success('Groupe créé avec succès')
+
+        newGroup.name = ''
+        newGroup.description = ''
+        showCreateGroupDialog.value = false
+
+        // Reload groups to show the new one
+        await loadGroups()
+      } catch (error) {
+        console.error('Error creating group:', error)
+        toast.error('Erreur lors de la création du groupe')
+      } finally {
+        groupsLoading.value = false
       }
-
-      groups.value.push(newGroupObj)
-      toast.success('Groupe créé avec succès')
-
-      newGroup.name = ''
-      newGroup.description = ''
-      showCreateGroupDialog.value = false
     }
 
     const editGroup = (group) => {
@@ -469,12 +463,16 @@ export default {
       toast.info('Gestion des membres en cours de développement')
     }
 
-    const deleteGroup = (group) => {
+    const deleteGroup = async (group) => {
       if (confirm(`Êtes-vous sûr de vouloir supprimer le groupe "${group.name}" ?`)) {
-        const index = groups.value.findIndex(g => g.id === group.id)
-        if (index > -1) {
-          groups.value.splice(index, 1)
+        try {
+          await groupsAPI.delete(group.id)
           toast.success('Groupe supprimé avec succès')
+          // Reload groups after deletion
+          await loadGroups()
+        } catch (error) {
+          console.error('Error deleting group:', error)
+          toast.error('Erreur lors de la suppression du groupe')
         }
       }
     }
@@ -483,7 +481,10 @@ export default {
       toast.info('Gestion des permissions en cours de développement')
     }
 
-    onMounted(() => {
+    onMounted(async () => {
+      // Load initial data
+      await Promise.all([loadUsers(), loadGroups()])
+
       // Set active tab from query parameter
       if (route.query.tab) {
         activeTab.value = route.query.tab
@@ -516,7 +517,9 @@ export default {
       editGroup,
       manageGroupMembers,
       deleteGroup,
-      manageFolderPermissions
+      manageFolderPermissions,
+      loadUsers,
+      loadGroups
     }
   }
 }

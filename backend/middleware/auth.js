@@ -30,4 +30,6 @@ const adminMiddleware = (req, res, next) => {
   next();
 };
 
-module.exports = { authMiddleware, adminMiddleware };
+const adminRequired = adminMiddleware;
+
+module.exports = { authMiddleware, adminMiddleware, adminRequired };

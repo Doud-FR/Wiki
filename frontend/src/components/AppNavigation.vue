@@ -140,6 +140,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
 import { useToast } from 'vue-toastification'
 import { useTheme } from 'vuetify'
+import { foldersAPI } from '@/services/api'
 
 export default {
   name: 'AppNavigation',
@@ -201,20 +202,31 @@ export default {
       drawer.value = false
     }
 
-    const createFolder = () => {
+    const createFolder = async () => {
       if (newFolderName.value.trim()) {
-        // Here we would call an API to create the folder
-        toast.success(`Dossier "${newFolderName.value}" créé avec succès`)
+        try {
+          const folderData = {
+            name: newFolderName.value,
+            description: '',
+            parentId: null // Create at root level from navigation
+          }
 
-        // Add to recent folders for demo
-        recentFolders.value.push({
-          id: Date.now(),
-          name: newFolderName.value,
-          path: `/folder/${Date.now()}`
-        })
+          await foldersAPI.create(folderData)
+          toast.success(`Dossier "${newFolderName.value}" créé avec succès`)
 
-        newFolderName.value = ''
-        showCreateFolderDialog.value = false
+          // Add to recent folders for demo (this could be improved with real recent folder logic)
+          recentFolders.value.push({
+            id: Date.now(),
+            name: newFolderName.value,
+            path: `/folder/${Date.now()}`
+          })
+
+          newFolderName.value = ''
+          showCreateFolderDialog.value = false
+        } catch (error) {
+          console.error('Error creating folder:', error)
+          toast.error('Erreur lors de la création du dossier')
+        }
       }
     }
 

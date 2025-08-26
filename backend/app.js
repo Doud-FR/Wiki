@@ -8,6 +8,10 @@ require('dotenv').config();
 
 const { sequelize } = require('./models');
 const authRoutes = require('./routes/auth');
+const documentsRoutes = require('./routes/documents');
+const groupsRoutes = require('./routes/groups');
+const usersRoutes = require('./routes/users');
+const { createAdminUser } = require('./seeders/adminSeeder');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -84,6 +88,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/documents', documentsRoutes);
+app.use('/api/groups', groupsRoutes);
+app.use('/api/users', usersRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -131,6 +138,9 @@ const startServer = async () => {
       // Sync database (create tables if they don't exist)
       await sequelize.sync({ force: false });
       console.log('Database synchronized successfully.');
+
+      // Create admin user if none exists
+      await createAdminUser();
 
       // Start server
       app.listen(PORT, '0.0.0.0', () => {

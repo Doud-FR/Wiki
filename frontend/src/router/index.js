@@ -5,8 +5,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/views/Home.vue'),
-    meta: { requiresAuth: true }
+    component: () => import('@/views/Home.vue')
   },
   {
     path: '/login',

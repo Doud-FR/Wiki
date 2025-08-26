@@ -2,7 +2,7 @@
   <v-app-bar color="primary" dark prominent>
     <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
 
-    <v-toolbar-title class="d-flex align-center">
+    <v-toolbar-title class="d-flex align-center cursor-pointer" @click="$router.push('/')">
       <v-icon class="mr-2">mdi-book-open-page-variant</v-icon>
       Wiki App
     </v-toolbar-title>

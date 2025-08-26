@@ -53,9 +53,9 @@
                 <v-list-item class="px-0">
                   <v-list-item-title>Statut</v-list-item-title>
                   <v-list-item-subtitle>
-                    <v-chip 
-                      :color="authStore.isAdmin ? 'red' : 'primary'" 
-                      variant="flat" 
+                    <v-chip
+                      :color="authStore.isAdmin ? 'red' : 'primary'"
+                      variant="flat"
                       size="small"
                     >
                       {{ authStore.isAdmin ? 'Administrateur' : 'Utilisateur' }}
@@ -90,7 +90,7 @@
 
             <!-- Change Password Section -->
             <h3 class="text-h6 mb-4">Changer le mot de passe</h3>
-            
+
             <v-form ref="passwordForm" @submit.prevent="changePassword">
               <v-text-field
                 v-model="passwordData.currentPassword"
@@ -239,7 +239,7 @@ export default {
       try {
         await authStore.changePassword(passwordData.currentPassword, passwordData.newPassword)
         toast.success('Mot de passe modifié avec succès')
-        
+
         // Reset form
         passwordData.currentPassword = ''
         passwordData.newPassword = ''

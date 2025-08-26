@@ -71,7 +71,7 @@
         <!-- Creation options -->
         <v-divider class="my-2"></v-divider>
         <v-list-subheader>CRÉATION</v-list-subheader>
-        
+
         <v-list-item prepend-icon="mdi-plus" title="Nouveau document" @click="createNewDocument"></v-list-item>
         <v-list-item prepend-icon="mdi-folder-plus" title="Nouveau dossier" @click="showCreateFolderDialog = true"></v-list-item>
 
@@ -79,7 +79,7 @@
         <template v-if="authStore.isAdmin">
           <v-divider class="my-2"></v-divider>
           <v-list-subheader>ADMINISTRATION</v-list-subheader>
-          
+
           <v-list-item prepend-icon="mdi-account-group" title="Utilisateurs" @click="navigateToPage('/admin')"></v-list-item>
           <v-list-item prepend-icon="mdi-account-multiple" title="Groupes" @click="navigateToPage('/admin?tab=groups')"></v-list-item>
           <v-list-item prepend-icon="mdi-account-plus" title="Créer un utilisateur" @click="navigateToPage('/admin/register')"></v-list-item>
@@ -89,7 +89,7 @@
         <template v-if="recentFolders.length > 0">
           <v-divider class="my-2"></v-divider>
           <v-list-subheader>DOSSIERS</v-list-subheader>
-          
+
           <v-list-item
             v-for="folder in recentFolders"
             :key="folder.id"
@@ -194,14 +194,14 @@ export default {
       if (newFolderName.value.trim()) {
         // Here we would call an API to create the folder
         toast.success(`Dossier "${newFolderName.value}" créé avec succès`)
-        
+
         // Add to recent folders for demo
         recentFolders.value.push({
           id: Date.now(),
           name: newFolderName.value,
           path: `/folder/${Date.now()}`
         })
-        
+
         newFolderName.value = ''
         showCreateFolderDialog.value = false
       }

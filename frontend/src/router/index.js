@@ -33,6 +33,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/documents/new',
+    name: 'DocumentNew',
+    component: () => import('@/views/DocumentEdit.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/document/:id',
     name: 'DocumentView',
     component: () => import('@/views/DocumentView.vue'),

@@ -1,5 +1,6 @@
 <template>
-  <v-container fluid class="fill-height">
+  <!-- Welcome screen for non-authenticated users -->
+  <v-container v-if="!authStore.isAuthenticated" fluid class="fill-height">
     <v-row justify="center" align="center" class="fill-height">
       <v-col cols="12" md="8" lg="6">
         <v-card class="elevation-4" rounded="lg">
@@ -53,7 +54,7 @@
                   <h3 class="text-h5 mb-4 text-center">Commencez dès maintenant</h3>
 
                   <p class="text-center text-grey mb-6">
-                    Rejoignez une plateforme moderne et intuitive pour gérer votre documentation d'équipe.
+                    Connectez-vous pour accéder à votre plateforme de documentation collaborative.
                   </p>
 
                   <div class="d-flex flex-column gap-3 w-100" style="max-width: 300px;">
@@ -65,17 +66,6 @@
                       @click="$router.push('/login')"
                     >
                       Se connecter
-                    </v-btn>
-
-                    <v-btn
-                      variant="outlined"
-                      color="primary"
-                      size="large"
-                      block
-                      prepend-icon="mdi-account-plus"
-                      @click="$router.push('/register')"
-                    >
-                      Créer un compte
                     </v-btn>
                   </div>
                 </div>
@@ -103,8 +93,27 @@
 </template>
 
 <script>
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/store/auth'
+
 export default {
-  name: 'Home'
+  name: 'Home',
+  setup () {
+    const router = useRouter()
+    const authStore = useAuthStore()
+
+    onMounted(() => {
+      // Redirect authenticated users to documents page
+      if (authStore.isAuthenticated) {
+        router.push('/documents')
+      }
+    })
+
+    return {
+      authStore
+    }
+  }
 }
 </script>
 

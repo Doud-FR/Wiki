@@ -15,7 +15,7 @@ export default createVuetify({
     }
   },
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: localStorage.getItem('theme') || 'light',
     themes: {
       light: {
         colors: {

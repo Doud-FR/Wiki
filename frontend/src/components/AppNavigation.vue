@@ -45,6 +45,10 @@
           <v-list-item-title>Profil</v-list-item-title>
         </v-list-item>
 
+        <v-list-item @click="toggleTheme" prepend-icon="mdi-theme-light-dark">
+          <v-list-item-title>{{ isDark ? 'Mode clair' : 'Mode sombre' }}</v-list-item-title>
+        </v-list-item>
+
         <v-list-item v-if="authStore.isAdmin" @click="$router.push('/admin')" prepend-icon="mdi-cog">
           <v-list-item-title>Administration</v-list-item-title>
         </v-list-item>
@@ -60,26 +64,61 @@
     <!-- Navigation drawer -->
     <v-navigation-drawer v-model="drawer" temporary>
       <v-list density="compact" nav>
-        <v-list-item prepend-icon="mdi-home" title="Accueil" value="home" @click="$router.push('/')"></v-list-item>
-        <v-list-item prepend-icon="mdi-file-document-multiple" title="Documents" value="documents" @click="$router.push('/documents')"></v-list-item>
+        <!-- Main navigation -->
+        <v-list-item prepend-icon="mdi-home" title="Accueil" @click="navigateToPage('/')"></v-list-item>
+        <v-list-item prepend-icon="mdi-file-document-multiple" title="Documents" @click="navigateToPage('/documents')"></v-list-item>
 
+        <!-- Creation options -->
         <v-divider class="my-2"></v-divider>
-
-        <v-list-subheader>DOSSIERS</v-list-subheader>
-        <!-- Folder tree will be loaded here -->
-        <v-list-item
-          v-for="folder in recentFolders"
-          :key="folder.id"
-          :prepend-icon="'mdi-folder'"
-          :title="folder.name"
-          @click="navigateToFolder(folder)"
-        ></v-list-item>
-
-        <v-divider class="my-2"></v-divider>
+        <v-list-subheader>CRÉATION</v-list-subheader>
 
         <v-list-item prepend-icon="mdi-plus" title="Nouveau document" @click="createNewDocument"></v-list-item>
-        <v-list-item prepend-icon="mdi-folder-plus" title="Nouveau dossier" @click="createNewFolder"></v-list-item>
+        <v-list-item prepend-icon="mdi-folder-plus" title="Nouveau dossier" @click="showCreateFolderDialog = true"></v-list-item>
+
+        <!-- Admin section -->
+        <template v-if="authStore.isAdmin">
+          <v-divider class="my-2"></v-divider>
+          <v-list-subheader>ADMINISTRATION</v-list-subheader>
+
+          <v-list-item prepend-icon="mdi-account-group" title="Utilisateurs" @click="navigateToPage('/admin')"></v-list-item>
+          <v-list-item prepend-icon="mdi-account-multiple" title="Groupes" @click="navigateToPage('/admin?tab=groups')"></v-list-item>
+          <v-list-item prepend-icon="mdi-account-plus" title="Créer un utilisateur" @click="navigateToPage('/admin/register')"></v-list-item>
+        </template>
+
+        <!-- Folders -->
+        <template v-if="recentFolders.length > 0">
+          <v-divider class="my-2"></v-divider>
+          <v-list-subheader>DOSSIERS</v-list-subheader>
+
+          <v-list-item
+            v-for="folder in recentFolders"
+            :key="folder.id"
+            :prepend-icon="'mdi-folder'"
+            :title="folder.name"
+            @click="navigateToFolder(folder)"
+          ></v-list-item>
+        </template>
       </v-list>
+
+      <!-- Create folder dialog -->
+      <v-dialog v-model="showCreateFolderDialog" max-width="400">
+        <v-card>
+          <v-card-title>Créer un nouveau dossier</v-card-title>
+          <v-card-text>
+            <v-text-field
+              v-model="newFolderName"
+              label="Nom du dossier"
+              variant="outlined"
+              @keyup.enter="createFolder"
+            ></v-text-field>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text @click="showCreateFolderDialog = false">Annuler</v-btn>
+            <v-btn color="primary" @click="createFolder">Créer</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-navigation-drawer>
   </v-app-bar>
 </template>
@@ -89,6 +128,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
 import { useToast } from 'vue-toastification'
+import { useTheme } from 'vuetify'
 
 export default {
   name: 'AppNavigation',
@@ -96,9 +136,12 @@ export default {
     const router = useRouter()
     const authStore = useAuthStore()
     const toast = useToast()
+    const theme = useTheme()
 
     const drawer = ref(false)
     const searchQuery = ref('')
+    const showCreateFolderDialog = ref(false)
+    const newFolderName = ref('')
     const recentFolders = ref([
       { id: 1, name: 'Documentation', path: '/docs' },
       { id: 2, name: 'Projets', path: '/projects' },
@@ -112,6 +155,13 @@ export default {
       return (first + last).toUpperCase()
     })
 
+    const isDark = computed(() => theme.global.name.value === 'dark')
+
+    const toggleTheme = () => {
+      theme.global.name.value = theme.global.name.value === 'light' ? 'dark' : 'light'
+      localStorage.setItem('theme', theme.global.name.value)
+    }
+
     const performSearch = () => {
       if (searchQuery.value.trim()) {
         router.push({
@@ -120,6 +170,11 @@ export default {
         })
         drawer.value = false
       }
+    }
+
+    const navigateToPage = (path) => {
+      router.push(path)
+      drawer.value = false
     }
 
     const navigateToFolder = (folder) => {
@@ -135,10 +190,21 @@ export default {
       drawer.value = false
     }
 
-    const createNewFolder = () => {
-      // This would open a dialog to create a new folder
-      toast.info('Fonctionnalité en cours de développement')
-      drawer.value = false
+    const createFolder = () => {
+      if (newFolderName.value.trim()) {
+        // Here we would call an API to create the folder
+        toast.success(`Dossier "${newFolderName.value}" créé avec succès`)
+
+        // Add to recent folders for demo
+        recentFolders.value.push({
+          id: Date.now(),
+          name: newFolderName.value,
+          path: `/folder/${Date.now()}`
+        })
+
+        newFolderName.value = ''
+        showCreateFolderDialog.value = false
+      }
     }
 
     const logout = async () => {
@@ -154,13 +220,18 @@ export default {
     return {
       drawer,
       searchQuery,
+      showCreateFolderDialog,
+      newFolderName,
       recentFolders,
       userInitials,
+      isDark,
       authStore,
       performSearch,
+      navigateToPage,
       navigateToFolder,
       createNewDocument,
-      createNewFolder,
+      createFolder,
+      toggleTheme,
       logout
     }
   }

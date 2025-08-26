@@ -15,10 +15,10 @@ const routes = [
     meta: { guest: true }
   },
   {
-    path: '/register',
-    name: 'Register',
+    path: '/admin/register',
+    name: 'AdminRegister',
     component: () => import('@/views/Register.vue'),
-    meta: { guest: true }
+    meta: { requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/profile',
@@ -30,6 +30,12 @@ const routes = [
     path: '/documents',
     name: 'Documents',
     component: () => import('@/views/Documents.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/documents/new',
+    name: 'DocumentNew',
+    component: () => import('@/views/DocumentEdit.vue'),
     meta: { requiresAuth: true }
   },
   {

@@ -64,13 +64,6 @@
               >
                 Se connecter
               </v-btn>
-
-              <div class="text-center">
-                <span class="text-grey">Pas encore de compte ?</span>
-                <v-btn text color="primary" @click="$router.push('/register')">
-                  Créer un compte
-                </v-btn>
-              </div>
             </v-form>
           </v-card-text>
         </v-card>

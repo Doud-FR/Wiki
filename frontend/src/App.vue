@@ -51,6 +51,22 @@ html {
   font-family: 'Roboto', sans-serif !important;
 }
 
+/* Beautiful gradient background for all pages */
+.v-main {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+/* Dark theme gradient */
+.v-theme--dark .v-main {
+  background: linear-gradient(135deg, #0f0f23 0%, #1e1b4b 50%, #312e81 100%);
+}
+
+/* Ensure cursor pointer for clickable elements */
+.cursor-pointer {
+  cursor: pointer;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -67,6 +83,19 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* Dark theme scrollbar */
+.v-theme--dark ::-webkit-scrollbar-track {
+  background: #1e1b4b;
+}
+
+.v-theme--dark ::-webkit-scrollbar-thumb {
+  background: #6366f1;
+}
+
+.v-theme--dark ::-webkit-scrollbar-thumb:hover {
+  background: #7c3aed;
 }
 
 /* Markdown content styling */
@@ -95,6 +124,11 @@ html {
   font-size: 0.9em;
 }
 
+.v-theme--dark .markdown-content code {
+  background-color: #312e81;
+  color: #e2e8f0;
+}
+
 .markdown-content pre {
   background-color: #f5f5f5;
   padding: 1em;
@@ -103,11 +137,20 @@ html {
   margin: 1em 0;
 }
 
+.v-theme--dark .markdown-content pre {
+  background-color: #312e81;
+  color: #e2e8f0;
+}
+
 .markdown-content blockquote {
   border-left: 4px solid #ddd;
   padding-left: 1em;
   margin: 1em 0;
   font-style: italic;
+}
+
+.v-theme--dark .markdown-content blockquote {
+  border-left-color: #6366f1;
 }
 
 .markdown-content table {
@@ -123,8 +166,17 @@ html {
   text-align: left;
 }
 
+.v-theme--dark .markdown-content th,
+.v-theme--dark .markdown-content td {
+  border-color: #6366f1;
+}
+
 .markdown-content th {
   background-color: #f5f5f5;
   font-weight: bold;
+}
+
+.v-theme--dark .markdown-content th {
+  background-color: #312e81;
 }
 </style>

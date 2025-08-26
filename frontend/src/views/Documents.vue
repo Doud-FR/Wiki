@@ -1,35 +1,39 @@
 <template>
-  <v-container>
-    <!-- Header -->
-    <v-row class="mb-4">
-      <v-col cols="12" md="8">
-        <div class="d-flex align-center">
-          <v-icon class="mr-3" size="32">mdi-file-document-multiple</v-icon>
-          <div>
-            <h1 class="text-h4">Documents</h1>
-            <p class="text-subtitle-1 text-grey mb-0">Gérez vos documents et dossiers</p>
-          </div>
-        </div>
-      </v-col>
-      <v-col cols="12" md="4" class="text-right">
-        <v-btn
-          color="primary"
-          prepend-icon="mdi-plus"
-          @click="showCreateDialog = true"
-          class="mr-2"
-        >
-          Nouveau document
-        </v-btn>
-        <v-btn
-          variant="outlined"
-          color="primary"
-          prepend-icon="mdi-folder-plus"
-          @click="showCreateFolderDialog = true"
-        >
-          Nouveau dossier
-        </v-btn>
-      </v-col>
-    </v-row>
+  <v-container class="py-6">
+    <v-card class="elevation-8" rounded="lg">
+      <v-card-text class="pa-6">
+        <!-- Header -->
+        <v-row class="mb-4">
+          <v-col cols="12" md="8">
+            <div class="d-flex align-center">
+              <v-icon class="mr-3" size="32" color="primary">mdi-file-document-multiple</v-icon>
+              <div>
+                <h1 class="text-h4 text-primary">Documents</h1>
+                <p class="text-subtitle-1 text-grey mb-0">Gérez vos documents et dossiers</p>
+              </div>
+            </div>
+          </v-col>
+          <v-col cols="12" md="4" class="text-right">
+            <v-btn
+              color="primary"
+              prepend-icon="mdi-plus"
+              @click="showCreateDialog = true"
+              class="mr-2"
+              elevation="2"
+            >
+              Nouveau document
+            </v-btn>
+            <v-btn
+              variant="outlined"
+              color="primary"
+              prepend-icon="mdi-folder-plus"
+              @click="showCreateFolderDialog = true"
+              elevation="2"
+            >
+              Nouveau dossier
+            </v-btn>
+          </v-col>
+        </v-row>
 
     <!-- Breadcrumb -->
     <v-row v-if="currentPath.length > 0" class="mb-4">
@@ -71,16 +75,40 @@
       </v-col>
     </v-row>
 
-    <!-- Documents List -->
-    <v-card>
-      <v-card-text class="pa-0">
-        <v-data-table
-          :headers="headers"
-          :items="filteredItems"
-          :loading="loading"
-          item-value="id"
-          class="elevation-0"
-        >
+        <!-- Documents List -->
+        <v-card class="elevation-2" rounded="lg">
+          <v-card-text class="pa-0">
+            <v-data-table
+              :headers="headers"
+              :items="filteredItems"
+              :loading="loading"
+              item-value="id"
+              class="elevation-0"
+            >
+              <template #no-data>
+                <div class="text-center py-8">
+                  <v-icon size="64" color="grey" class="mb-4">mdi-folder-open</v-icon>
+                  <h3 class="text-h6 mb-2">Aucun document trouvé</h3>
+                  <p class="text-grey mb-4">Commencez par créer votre premier document ou dossier</p>
+                  <div class="d-flex justify-center gap-2">
+                    <v-btn
+                      color="primary"
+                      prepend-icon="mdi-plus"
+                      @click="showCreateDialog = true"
+                    >
+                      Nouveau document
+                    </v-btn>
+                    <v-btn
+                      variant="outlined"
+                      color="primary"
+                      prepend-icon="mdi-folder-plus"
+                      @click="showCreateFolderDialog = true"
+                    >
+                      Nouveau dossier
+                    </v-btn>
+                  </div>
+                </div>
+              </template>
           <template #item.name="{ item }">
             <div class="d-flex align-center">
               <v-icon class="mr-3" :color="item.type === 'folder' ? 'amber' : 'primary'">
@@ -135,17 +163,6 @@
               color="error"
               @click="deleteItem(item)"
             ></v-btn>
-          </template>
-
-          <template v-slot:no-data>
-            <div class="text-center pa-8">
-              <v-icon size="64" color="grey">mdi-folder-open</v-icon>
-              <h3 class="text-h6 text-grey mt-4">Aucun document trouvé</h3>
-              <p class="text-grey">Commencez par créer votre premier document ou dossier</p>
-              <v-btn color="primary" @click="showCreateDialog = true">
-                Créer un document
-              </v-btn>
-            </div>
           </template>
         </v-data-table>
       </v-card-text>
@@ -205,6 +222,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 
@@ -470,6 +489,7 @@ export default {
       nameRules,
       filteredItems,
       breadcrumbItems,
+      currentPath,
       formatDate,
       navigateToFolder,
       openFolder,

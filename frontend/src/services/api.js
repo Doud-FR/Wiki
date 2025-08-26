@@ -44,7 +44,8 @@ export const authAPI = {
   register: (userData) => api.post('/auth/register', userData),
   getProfile: () => api.get('/auth/me'),
   updateProfile: (userData) => api.put('/auth/profile', userData),
-  changePassword: (passwordData) => api.put('/auth/password', passwordData)
+  changePassword: (passwordData) => api.put('/auth/password', passwordData),
+  getAdminStatus: () => api.get('/auth/admin-status')
 }
 
 // Documents API

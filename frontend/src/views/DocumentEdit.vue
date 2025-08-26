@@ -140,6 +140,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
+import { documentsAPI } from '@/services/api'
 
 export default {
   name: 'DocumentEdit',
@@ -216,39 +217,30 @@ export default {
       }, 0)
     }
 
-    const loadDocument = () => {
+    const loadDocument = async () => {
       if (!isNew.value && route.params.id) {
-        // In a real app, this would load from API
-        document.id = parseInt(route.params.id)
-        document.name = 'Document exemple'
-        document.content = `# Titre du document
-
-Ceci est un exemple de document en Markdown.
-
-## Introduction
-
-Vous pouvez utiliser le **formatage Markdown** pour créer du contenu riche :
-
-- Listes à puces
-- *Texte en italique*
-- \`Code inline\`
-- [Liens](https://example.com)
-
-## Section principale
-
-Votre contenu ici...
-
-### Sous-section
-
-Plus de contenu...`
+        try {
+          const response = await documentsAPI.getById(route.params.id)
+          const doc = response.data
+          document.id = doc.id
+          document.name = doc.title
+          document.content = doc.content || ''
+          document.type = doc.contentType || 'markdown'
+        } catch (error) {
+          console.error('Error loading document:', error)
+          toast.error('Erreur lors du chargement du document')
+          router.push('/documents')
+        }
       } else {
         // New document
+        document.id = null
         document.name = ''
         document.content = ''
+        document.type = 'markdown'
       }
     }
 
-    const saveDocument = () => {
+    const saveDocument = async () => {
       if (isNew.value && !document.name.trim()) {
         toast.error('Veuillez saisir un nom pour le document')
         return
@@ -256,16 +248,38 @@ Plus de contenu...`
 
       saving.value = true
 
-      // Simulate API call
-      setTimeout(() => {
-        toast.success('Document sauvegardé avec succès')
-        saving.value = false
-
+      try {
         if (isNew.value) {
-          // Redirect to the document view after creation
-          router.push('/documents')
+          // Create new document
+          const documentData = {
+            name: document.name,
+            description: document.content,
+            type: document.type
+          }
+          const response = await documentsAPI.create(documentData)
+          const newDoc = response.data
+
+          document.id = newDoc.id
+          toast.success('Document créé avec succès')
+
+          // Redirect to edit the newly created document
+          router.push(`/document/${newDoc.id}/edit`)
+        } else {
+          // Update existing document
+          const documentData = {
+            title: document.name,
+            content: document.content,
+            contentType: document.type
+          }
+          await documentsAPI.update(document.id, documentData)
+          toast.success('Document sauvegardé avec succès')
         }
-      }, 1000)
+      } catch (error) {
+        console.error('Error saving document:', error)
+        toast.error('Erreur lors de la sauvegarde du document')
+      } finally {
+        saving.value = false
+      }
     }
 
     // Auto-save every 30 seconds

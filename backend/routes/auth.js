@@ -175,4 +175,27 @@ router.put('/password', authMiddleware, [
   }
 });
 
+// Check admin status (public endpoint for setup information)
+router.get('/admin-status', async (req, res) => {
+  try {
+    const adminUser = await User.findOne({ where: { isAdmin: true } });
+    
+    if (adminUser) {
+      res.json({
+        hasAdmin: true,
+        adminEmail: 'admin@wiki.local',
+        message: 'Admin account exists. Use admin@wiki.local to login.'
+      });
+    } else {
+      res.json({
+        hasAdmin: false,
+        message: 'No admin account found. Admin will be created on server restart.'
+      });
+    }
+  } catch (error) {
+    console.error('Admin status check error:', error);
+    res.status(500).json({ error: 'Failed to check admin status' });
+  }
+});
+
 module.exports = router;

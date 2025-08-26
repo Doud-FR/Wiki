@@ -132,95 +132,35 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
 import { useToast } from 'vue-toastification'
 import MarkdownIt from 'markdown-it'
+import { documentsAPI } from '@/services/api'
 
 export default {
   name: 'DocumentView',
   setup () {
     const router = useRouter()
+    const route = useRoute()
     const authStore = useAuthStore()
     const toast = useToast()
 
     const newComment = ref('')
     const md = new MarkdownIt()
+    const loading = ref(true)
 
-    // Mock document data
+    // Document data (will be loaded from API)
     const document = ref({
-      id: 1,
-      title: 'Guide de démarrage complet',
-      description: 'Guide détaillé pour bien commencer avec Wiki App',
+      id: null,
+      title: '',
+      description: '',
       type: 'markdown',
-      content: `# Guide de démarrage complet
-
-## Introduction
-
-Bienvenue dans **Wiki App**, votre plateforme de documentation collaborative. Ce guide vous accompagnera dans vos premiers pas.
-
-## Fonctionnalités principales
-
-### 1. Gestion des documents
-- Création et édition de documents Markdown
-- Organisation en dossiers hiérarchiques
-- Système de tags pour la classification
-
-### 2. Collaboration
-- Commentaires en temps réel
-- Historique des versions
-- Système de permissions granulaires
-
-### 3. Recherche avancée
-- Recherche textuelle dans tout le contenu
-- Filtres par type, auteur, date
-- Suggestions intelligentes
-
-## Premiers pas
-
-1. **Créer votre premier document**
-   - Cliquez sur "Nouveau document" dans la barre de navigation
-   - Choisissez un nom et une description
-   - Sélectionnez le type de document
-
-2. **Organiser vos documents**
-   - Utilisez des dossiers pour structurer votre contenu
-   - Ajoutez des tags pour faciliter la recherche
-   - Configurez les permissions selon vos besoins
-
-## Conseils pour bien démarrer
-
-> **Astuce**: Utilisez la syntaxe Markdown pour formater facilement vos documents.
-
-Voici quelques exemples de syntaxe:
-
-\`\`\`markdown
-# Titre niveau 1
-## Titre niveau 2
-### Titre niveau 3
-
-**Texte en gras**
-*Texte en italique*
-
-- Liste à puces
-- Deuxième élément
-
-1. Liste numérotée
-2. Deuxième élément
-\`\`\`
-
-## Support et aide
-
-Si vous avez des questions, n'hésitez pas à:
-- Consulter la documentation complète
-- Contacter l'équipe support
-- Participer aux formations utilisateurs
-
-Bonne utilisation de Wiki App ! 🚀`,
-      author: 'Admin User',
-      tags: ['guide', 'démarrage', 'documentation'],
-      updatedAt: '2024-01-15T10:30:00Z'
+      content: '',
+      author: '',
+      updatedAt: null,
+      tags: []
     })
 
     const comments = ref([
@@ -285,12 +225,51 @@ Bonne utilisation de Wiki App ! 🚀`,
       router.push(`/search?query=${encodeURIComponent(tag)}`)
     }
 
+    // Load document from API
+    const loadDocument = async () => {
+      const documentId = route.params.id
+      if (!documentId) {
+        toast.error('ID de document manquant')
+        router.push('/documents')
+        return
+      }
+
+      try {
+        loading.value = true
+        const response = await documentsAPI.getById(documentId)
+        const doc = response.data
+
+        document.value = {
+          id: doc.id,
+          title: doc.title,
+          description: doc.content?.substring(0, 100) || '',
+          type: doc.contentType || 'markdown',
+          content: doc.content || '',
+          author: doc.creator ? `${doc.creator.firstName} ${doc.creator.lastName}` : 'Utilisateur inconnu',
+          updatedAt: doc.updatedAt,
+          tags: doc.tags || []
+        }
+      } catch (error) {
+        console.error('Error loading document:', error)
+        toast.error('Erreur lors du chargement du document')
+        router.push('/documents')
+      } finally {
+        loading.value = false
+      }
+    }
+
+    // Load document on mount
+    onMounted(() => {
+      loadDocument()
+    })
+
     return {
       authStore,
       document,
       comments,
       newComment,
       renderedContent,
+      loading,
       getAuthorInitials,
       formatDate,
       goBack,

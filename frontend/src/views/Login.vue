@@ -12,6 +12,24 @@
           </v-card-title>
 
           <v-card-text class="px-8 pb-8">
+            <!-- Admin Status Alert -->
+            <v-alert
+              v-if="adminStatus && adminStatus.hasAdmin"
+              type="info"
+              variant="tonal"
+              class="mb-4"
+              prominent
+            >
+              <v-alert-title>Compte Administrateur Disponible</v-alert-title>
+              <div class="mt-2">
+                <p class="mb-2">{{ adminStatus.message }}</p>
+                <div class="text-caption">
+                  <strong>Email:</strong> {{ adminStatus.adminEmail }}<br>
+                  <strong>Note:</strong> Le mot de passe a été généré automatiquement et affiché dans les logs du serveur.
+                </div>
+              </div>
+            </v-alert>
+
             <v-form ref="form" @submit.prevent="handleLogin">
               <v-text-field
                 v-model="email"
@@ -73,10 +91,11 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
 import { useToast } from 'vue-toastification'
+import { authAPI } from '@/services/api'
 
 export default {
   name: 'Login',
@@ -93,6 +112,7 @@ export default {
     const loading = ref(false)
     const emailErrors = ref([])
     const passwordErrors = ref([])
+    const adminStatus = ref(null)
 
     const emailRules = [
       v => !!v || 'L\'email est requis',
@@ -136,6 +156,21 @@ export default {
       }
     }
 
+    // Fetch admin status on page load
+    const fetchAdminStatus = async () => {
+      try {
+        const response = await authAPI.getAdminStatus()
+        adminStatus.value = response.data
+      } catch (error) {
+        console.error('Failed to fetch admin status:', error)
+      }
+    }
+
+    // Load admin status when component mounts
+    onMounted(() => {
+      fetchAdminStatus()
+    })
+
     return {
       form,
       email,
@@ -147,6 +182,7 @@ export default {
       passwordErrors,
       emailRules,
       passwordRules,
+      adminStatus,
       handleLogin
     }
   }

@@ -484,7 +484,7 @@ export default {
     onMounted(async () => {
       // Load initial data
       await Promise.all([loadUsers(), loadGroups()])
-      
+
       // Set active tab from query parameter
       if (route.query.tab) {
         activeTab.value = route.query.tab
